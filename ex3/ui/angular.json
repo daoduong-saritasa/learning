@@ -97,7 +97,11 @@
               "browserTarget": "web:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "browserTarget": "web:build",
+            "proxyConfig": "./proxy.conf.json"
+          }
         },
         "extract-i18n": {
           "builder": "@ngx-env/builder:extract-i18n",

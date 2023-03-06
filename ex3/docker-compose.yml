@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+  postgres-db:
+    image: postgres:bullseye
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: vocabulary
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/init-migration.sql:/docker-entrypoint-initdb.d/init-migration.sql
+      - ./db/vocabulary-db-data:/var/lib/postgresql/data
+  api:
+    image: graphile/postgraphile
+    ports:
+      - 5000:5000
+    env_file:
+      - ./.env
+    command: >-
+      --connection ${DATABASE_URL}
+      --port 5000
+      --schema public
+      --enhance-graphiql
+      --jwt-token-identifier public.jwt_token
+      --jwt-secret TOP_SECRET
+      --cors
+      --retry-on-init-fail
+      --watch
+    depends_on:
+      - postgres-db
+  ui:
+    image: ui
+    container_name: ui
+    build: ./ui
+    ports:
+      - 8080:80
+volumes:
+  vocabulary-db-data:

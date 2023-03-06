@@ -19,6 +19,10 @@ const routes: Routes = [
         m => m.DashboardModule,
       ),
   },
+  {
+    path: 'group',
+    loadChildren: () => import('./features/group/group.module').then(m => m.GroupModule),
+  },
 ];
 
 /** App routing module. */

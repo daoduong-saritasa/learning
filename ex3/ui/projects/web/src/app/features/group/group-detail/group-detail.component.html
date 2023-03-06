@@ -1,0 +1,19 @@
+<div *ngIf="group$ |async as group" class="group">
+  <h1 class="group-name">{{ group.name }}</h1>
+  <div class="tasks">
+    <div *ngFor="let task of (tasks$ | async); trackBy: trackByTask" class="task">
+      <div>
+        <h2>{{ task.name }}</h2>
+        <h4>{{ task.description }}</h4>
+      </div>
+      <div *ngIf="checkTaskStatus(task.taskGroups, group.id); else notSent">
+        <checkmark />
+      </div>
+      <ng-template #notSent>
+        <button (click)="onSendTaskClick(task.id, group.id)" class="send-button">
+          Send
+        </button>
+      </ng-template>
+    </div>
+  </div>
+</div>

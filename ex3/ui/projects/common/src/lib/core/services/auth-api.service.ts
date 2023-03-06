@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -7,8 +8,11 @@ import { Login } from '../models/login';
 import { PasswordChange } from '../models/password-change';
 import { PasswordReset } from '../models/password-reset';
 import { UserSecret } from '../models/user-secret';
+import { assertNonNullWithReturn } from '../utils/assert-non-null';
 
 import { AppUrlsConfig } from './app-urls.config';
+import { AuthenticateDto } from './graphql/dtos/user-secret';
+import { LOGIN } from './graphql/mutations/auth.mutation';
 import { AppErrorMapper } from './mappers/app-error.mapper';
 import { SuccessResponseDto } from './mappers/dto/success-response.dto';
 import { UserSecretDto } from './mappers/dto/user-secret.dto';
@@ -32,6 +36,7 @@ export class AuthApiService {
     private readonly resetPasswordMapper: ResetPasswordMapper,
     private readonly resetPasswordConfirmationMapper: ResetPasswordConfirmationMapper,
     private readonly passwordChangeMapper: PasswordChangeMapper,
+    private apollo: Apollo,
   ) { }
 
   /**
@@ -39,11 +44,16 @@ export class AuthApiService {
    * @param loginData Login data.
    */
   public login(loginData: Login): Observable<UserSecret> {
-    return this.httpClient.post<UserSecret>(
-      this.apiUrlsConfig.auth.login,
-      this.loginDataMapper.toDto(loginData),
-    )
+    const loginDataDto = this.loginDataMapper.toDto(loginData);
+    return this.apollo.mutate<AuthenticateDto>({
+      mutation: LOGIN,
+      variables: {
+        email: loginDataDto.email,
+        password: loginDataDto.password,
+      },
+    })
       .pipe(
+        map(result => assertNonNullWithReturn(result.data?.authenticate)),
         map(dto => this.userSecretMapper.fromDto(dto)),
         this.appErrorMapper.catchHttpErrorToAppErrorWithValidationSupport(
           this.loginDataMapper,

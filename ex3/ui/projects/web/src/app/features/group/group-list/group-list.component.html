@@ -1,0 +1,5 @@
+<ul class="groups">
+  <li *ngFor="let group of (groups$ | async); trackBy: groupTrackBy" class="groupItem">
+    <a [routerLink]="'/group/'+group.id" class="group-link" routerLinkActive="selected">{{ group.name }}</a>
+  </li>
+</ul>

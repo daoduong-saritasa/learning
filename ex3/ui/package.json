@@ -19,7 +19,7 @@
     "coverage": "ng test --code-coverage --no-watch --no-progress --browsers=ChromeHeadlessCI",
     "lint": "ng lint --cache && stylelint projects/**/*.*css",
     "lint:fix": "ng lint --cache --fix && stylelint projects/**/*.*css --fix && prettier --write projects/**/*.html",
-    "prepare": "husky install"
+    "prepare": "cd ../.. && husky install ex3/ui/.husky"
   },
   "private": true,
   "dependencies": {
@@ -34,6 +34,7 @@
     "@angular/platform-browser-dynamic": "^15.1.2",
     "@angular/router": "^15.1.2",
     "@ngneat/until-destroy": "^9.2.3",
+    "apollo-angular": "^4.2.1",
     "rxjs": "^7.8.0",
     "tslib": "^2.4.1",
     "zone.js": "~0.12.0"

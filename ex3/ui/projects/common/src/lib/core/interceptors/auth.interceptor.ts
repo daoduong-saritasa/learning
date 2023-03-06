@@ -14,7 +14,7 @@ import { AppConfig } from '../services/app.config';
 import { UserSecretStorageService } from '../services/user-secret-storage.service';
 
 const AUTH_HEADER_KEY = 'Authorization';
-const AUTH_PREFIX = 'Token';
+const AUTH_PREFIX = 'Bearer';
 
 /** Adds JWT to requests using Authorization HTTP header. */
 @Injectable()

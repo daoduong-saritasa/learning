@@ -1,0 +1,19 @@
+.navbar {
+  background-color: #3F51B5;
+  border-bottom: 1px solid #e7e7e7;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  height: 60px;
+  position: relative;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  color: #ffffff;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}

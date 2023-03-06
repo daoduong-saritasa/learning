@@ -6,8 +6,8 @@
       "files": ["*.ts"],
       "parserOptions": {
         "project": [
-          "projects/common/tsconfig.lib.json",
-          "projects/common/tsconfig.spec.json"
+          "ex3/ui/projects/common/tsconfig.lib.json",
+          "ex3/ui/projects/common/tsconfig.spec.json"
         ],
         "createDefaultProgram": true
       },

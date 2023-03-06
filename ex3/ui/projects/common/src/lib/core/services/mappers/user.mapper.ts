@@ -13,9 +13,11 @@ export class UserMapper implements IMapperFromDto<UserDto, User> {
   /** @inheritdoc */
   public fromDto(data: UserDto): User {
     return {
-      firstName: data.first_name,
-      lastName: data.last_name,
+      firstname: data.first_name,
+      lastname: data.last_name,
       id: data.id,
+      email: '',
+      isAdmin: false,
     };
   }
 }

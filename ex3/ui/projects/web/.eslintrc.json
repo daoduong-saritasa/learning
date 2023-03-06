@@ -6,8 +6,8 @@
       "files": ["*.ts"],
       "parserOptions": {
         "project": [
-          "projects/web/tsconfig.app.json",
-          "projects/web/tsconfig.spec.json"
+          "ex3/ui/projects/web/tsconfig.app.json",
+          "ex3/ui/projects/web/tsconfig.spec.json"
         ],
         "createDefaultProgram": true,
         "extraFileExtensions": [".html"]

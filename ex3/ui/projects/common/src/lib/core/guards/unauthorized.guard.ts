@@ -11,7 +11,7 @@ export function unauthorizedGuard(): Observable<boolean | UrlTree> {
   const router = inject(Router);
 
   return userService.isAuthorized$.pipe(
-    map(isAuthorized => (isAuthorized ? true : router.parseUrl('/'))),
+    map(isAuthorized => (isAuthorized ? true : router.parseUrl('/auth/login'))),
     first(),
   );
 }
