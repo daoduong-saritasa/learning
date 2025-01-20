@@ -1,4 +1,4 @@
-import { ArcRotateCamera, Scene, UniversalCamera, Vector3 } from '@babylonjs/core';
+import { ArcRotateCamera, Scene, Vector3 } from '@babylonjs/core';
 
 /** Main camera of the scene. */
 export class MainCamera {

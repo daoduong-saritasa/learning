@@ -1,5 +1,6 @@
 import {
   AbstractMesh,
+  Animation,
   Axis,
   CannonJSPlugin,
   Color3,
@@ -67,7 +68,6 @@ export class MainScene {
           this.carSpeed = 0;
           this.carAcceleration = 0;
         } else {
-          // console.log(this.carSpeed, distance);
           carBody.moveWithCollisions(
             direction.normalize().scale(this.carSpeed)
           );
@@ -85,7 +85,7 @@ export class MainScene {
 
   private async initCarPhysics(canvas: HTMLCanvasElement): Promise<void> {
     const car = await this.car;
-    car.rotate(Axis.Y, -Math.PI / 2, Space.WORLD);
+    car.rotate(Axis.Y, Math.PI / 2, Space.WORLD);
     canvas.addEventListener('click', (event) => {
       const pickResult = this.scene.pick(event.offsetX, event.offsetY);
       this.destination = assertNonNullWithReturn(pickResult.pickedPoint);
@@ -94,9 +94,9 @@ export class MainScene {
         this.destination.x - car.position.x,
         this.destination.z - car.position.z
       );
-      const rotation = angle - (car.rotationQuaternion?.toEulerAngles().y ?? 0);
+      const rotation =
+        angle - (car.rotationQuaternion?.toEulerAngles().y ?? 0) + Math.PI;
       car.rotate(Axis.Y, rotation, Space.WORLD);
-
       const distance = Vector3.Distance(this.destination, car.position);
       this.carAcceleration = distance / 100;
     });
@@ -133,7 +133,7 @@ export class MainScene {
     );
     ground.position.y = -5.0;
     const material = new StandardMaterial('groundMaterial');
-    material.diffuseColor = Color3.Random();
+    material.diffuseColor = Color3.Teal();
     ground.material = material;
     // enable physics for ground
     ground.physicsImpostor = new PhysicsImpostor(
@@ -148,16 +148,15 @@ export class MainScene {
     const { meshes } = await SceneLoader.ImportMeshAsync(
       '',
       '/assets/',
-      'car.glb',
+      'car1.glb',
       this.scene
     );
     const carBody = meshes[0];
     carBody.position = new Vector3(0, 0, 0);
-    carBody.scaling = new Vector3(10, 10, 10);
     carBody.physicsImpostor = new PhysicsImpostor(
       carBody,
       PhysicsImpostor.BoxImpostor,
-      { mass: 0, friction: 0.1, restitution: 0 },
+      { mass: 0, friction: 0, restitution: 0.3 },
       this.scene
     );
     return carBody;
@@ -176,7 +175,7 @@ export class MainScene {
     sphere.physicsImpostor = new PhysicsImpostor(
       sphere,
       PhysicsImpostor.SphereImpostor,
-      { mass: 1, friction: 0.1, restitution: 0 },
+      { mass: 1 },
       this.scene
     );
     return sphere;
