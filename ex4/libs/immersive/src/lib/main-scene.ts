@@ -1,6 +1,5 @@
 import {
   AbstractMesh,
-  Animation,
   Axis,
   CannonJSPlugin,
   Color3,
@@ -8,18 +7,15 @@ import {
   Mesh,
   MeshBuilder,
   PhysicsImpostor,
-  Plane,
-  Quaternion,
-  Scalar,
   Scene,
   SceneLoader,
   Space,
   StandardMaterial,
-  Tools,
   Vector3,
 } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
 import * as CANNON from 'cannon';
+import { Inspector } from '@babylonjs/inspector';
 
 import { MainLight } from './main-light';
 import { MainCamera } from './main-camera';
@@ -75,6 +71,8 @@ export class MainScene {
       }
       this.scene.render();
     });
+
+    Inspector.Show(this.scene, {});
   }
 
   /** Erase 3D related resources. */
@@ -94,8 +92,7 @@ export class MainScene {
         this.destination.x - car.position.x,
         this.destination.z - car.position.z
       );
-      const rotation =
-        angle - (car.rotationQuaternion?.toEulerAngles().y ?? 0) + Math.PI;
+      const rotation = angle - (car.rotationQuaternion?.toEulerAngles().y ?? 0);
       car.rotate(Axis.Y, rotation, Space.WORLD);
       const distance = Vector3.Distance(this.destination, car.position);
       this.carAcceleration = distance / 100;
@@ -107,10 +104,13 @@ export class MainScene {
     spheres: Mesh[]
   ): Promise<void> {
     const carBody = await car;
+    carBody.physicsImpostor?.setScalingUpdated();
+    console.log('carBody', carBody.physicsImpostor?.object.getBoundingInfo().boundingBox);
     spheres.forEach((sphere) => {
       sphere.physicsImpostor?.registerOnPhysicsCollide(
         carBody.physicsImpostor!,
         (main) => {
+          console.log({main, sphere});
           if (main.object === sphere) {
             this.carSpeed = 0;
             this.carAcceleration = 0;
@@ -139,7 +139,7 @@ export class MainScene {
     ground.physicsImpostor = new PhysicsImpostor(
       ground,
       PhysicsImpostor.BoxImpostor,
-      { mass: 0, friction: 0.1, restitution: 0.7 },
+      { mass: 0 },
       this.scene
     );
   }
@@ -148,15 +148,16 @@ export class MainScene {
     const { meshes } = await SceneLoader.ImportMeshAsync(
       '',
       '/assets/',
-      'car1.glb',
+      'car.glb',
       this.scene
     );
     const carBody = meshes[0];
     carBody.position = new Vector3(0, 0, 0);
+    carBody.scaling = new Vector3(10, 10, 10);
     carBody.physicsImpostor = new PhysicsImpostor(
       carBody,
       PhysicsImpostor.BoxImpostor,
-      { mass: 0, friction: 0, restitution: 0.3 },
+      { mass: 0, friction: 0, restitution: 0.5 },
       this.scene
     );
     return carBody;
