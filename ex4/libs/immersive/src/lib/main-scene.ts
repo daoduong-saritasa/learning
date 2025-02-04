@@ -83,7 +83,6 @@ export class MainScene {
 
   private async initCarPhysics(canvas: HTMLCanvasElement): Promise<void> {
     const car = await this.car;
-    car.rotate(Axis.Y, Math.PI / 2, Space.WORLD);
     canvas.addEventListener('click', (event) => {
       const pickResult = this.scene.pick(event.offsetX, event.offsetY);
       this.destination = assertNonNullWithReturn(pickResult.pickedPoint);
@@ -109,7 +108,6 @@ export class MainScene {
       object.physicsImpostor?.registerOnPhysicsCollide(
         carBody.physicsImpostor!,
         (main) => {
-          console.log({main, object});
           if (main.object === object) {
             this.carSpeed = 0;
             this.carAcceleration = 0;
@@ -134,7 +132,7 @@ export class MainScene {
     const material = new StandardMaterial('groundMaterial');
     material.diffuseColor = Color3.Teal();
     ground.material = material;
-    // enable physics for ground
+    // Enable physics for ground
     ground.physicsImpostor = new PhysicsImpostor(
       ground,
       PhysicsImpostor.BoxImpostor,
