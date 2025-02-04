@@ -15,7 +15,6 @@ import {
 } from '@babylonjs/core';
 import '@babylonjs/loaders/glTF';
 import * as CANNON from 'cannon';
-import { Inspector } from '@babylonjs/inspector';
 
 import { MainLight } from './main-light';
 import { MainCamera } from './main-camera';
@@ -32,18 +31,21 @@ export class MainScene {
   private carSpeed = 0;
   private carAcceleration = 0;
   private spheres: Mesh[] = [];
+  private cubes: Mesh[] = [];
   private car: Promise<AbstractMesh>;
-  public constructor(private readonly canvas: HTMLCanvasElement) {
+  public constructor(private readonly canvas: HTMLCanvasElement, private readonly numOfSpheres: number, private readonly numOfCubes: number) {
     MainCamera.create(this.scene);
     MainLight.create(this.scene);
 
-    // enable physics
+    // Enable physics
     const physicsPlugin = new CannonJSPlugin(true, 100, CANNON);
     this.scene.enablePhysics(new Vector3(0, -9.81, 0), physicsPlugin);
     this.createGround();
     this.car = this.createCar();
-    this.spheres = this.createSpheres();
+    this.spheres = this.createSpheres(numOfSpheres);
+    this.cubes = this.createCubes(numOfCubes);
     this.handleCollision(this.car, this.spheres);
+    this.handleCollision(this.car, this.cubes);
     this.initCarPhysics(canvas);
 
     this.engine.runRenderLoop(async () => {
@@ -71,8 +73,6 @@ export class MainScene {
       }
       this.scene.render();
     });
-
-    Inspector.Show(this.scene, {});
   }
 
   /** Erase 3D related resources. */
@@ -101,17 +101,16 @@ export class MainScene {
 
   private async handleCollision(
     car: Promise<AbstractMesh>,
-    spheres: Mesh[]
+    objects: Mesh[]
   ): Promise<void> {
     const carBody = await car;
     carBody.physicsImpostor?.setScalingUpdated();
-    console.log('carBody', carBody.physicsImpostor?.object.getBoundingInfo().boundingBox);
-    spheres.forEach((sphere) => {
-      sphere.physicsImpostor?.registerOnPhysicsCollide(
+    objects.forEach((object) => {
+      object.physicsImpostor?.registerOnPhysicsCollide(
         carBody.physicsImpostor!,
         (main) => {
-          console.log({main, sphere});
-          if (main.object === sphere) {
+          console.log({main, object});
+          if (main.object === object) {
             this.carSpeed = 0;
             this.carAcceleration = 0;
             this.destination = null;
@@ -182,9 +181,9 @@ export class MainScene {
     return sphere;
   }
 
-  private createSpheres(): Mesh[] {
+  private createSpheres(amount?: number): Mesh[] {
     const result = [];
-    for (let i = 0; i < NUMBER_OF_SPHERES; i++) {
+    for (let i = 0; i < (amount ?? NUMBER_OF_SPHERES); i++) {
       const randomPosition = new Vector3(
         -250 + Math.random() * 500,
         5,
@@ -192,6 +191,43 @@ export class MainScene {
       );
       const sphere = this.createSphere(randomPosition);
       result.push(sphere);
+    }
+    return result;
+  }
+
+  private createCube(position: Vector3): Mesh {
+    const cube = MeshBuilder.CreateBox(
+      'cube',
+      {
+        width: 10,
+        height: 10,
+        depth: 10,
+      },
+      this.scene
+    );
+    cube.position = position;
+    const material = new StandardMaterial('cubeMaterial');
+    material.diffuseColor = Color3.Random();
+    cube.material = material;
+    cube.physicsImpostor = new PhysicsImpostor(
+      cube,
+      PhysicsImpostor.BoxImpostor,
+      { mass: 1 },
+      this.scene
+    );
+    return cube;
+  }
+
+  private createCubes(amount?: number): Mesh[] {
+    const result = [];
+    for (let i = 0; i < (amount?? NUMBER_OF_SPHERES); i++) {
+      const randomPosition = new Vector3(
+        -250 + Math.random() * 500,
+        5,
+        -250 + Math.random() * 500
+      );
+      const cube = this.createCube(randomPosition);
+      result.push(cube);
     }
     return result;
   }

@@ -15,6 +15,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   private readonly ngZone = inject(NgZone);
 
+  private readonly numberOfSpheres = 10;
+
+  private readonly numberOfCubes = 10;
+
   /** Canvas reference. */
   @ViewChild('canvas')
   protected canvasRef?: ElementRef<HTMLCanvasElement>;
@@ -25,7 +29,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   public ngAfterViewInit(): void {
     this.ngZone.runOutsideAngular(() => {
       if (this.canvasRef != null) {
-        this.scene = new MainScene(this.canvasRef.nativeElement);
+        this.scene = new MainScene(this.canvasRef.nativeElement, this.numberOfSpheres, this.numberOfCubes);
       }
     })
   }
