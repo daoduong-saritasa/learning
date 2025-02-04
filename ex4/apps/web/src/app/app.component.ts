@@ -1,4 +1,5 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, NgZone, OnDestroy, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MainScene } from '@babylonjs-boilerplate/immersive';
 
@@ -8,16 +9,16 @@ import { MainScene } from '@babylonjs-boilerplate/immersive';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements AfterViewInit, OnDestroy {
+export class AppComponent implements OnDestroy {
 
   private readonly ngZone = inject(NgZone);
 
-  private readonly numberOfSpheres = 10;
+  protected numberOfSpheres = 10;
 
-  private readonly numberOfCubes = 10;
+  protected numberOfCubes = 10;
 
   /** Canvas reference. */
   @ViewChild('canvas')
@@ -26,16 +27,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   private scene: MainScene | null = null;
 
   /** @inheritdoc */
-  public ngAfterViewInit(): void {
-    this.ngZone.runOutsideAngular(() => {
-      if (this.canvasRef != null) {
-        this.scene = new MainScene(this.canvasRef.nativeElement, this.numberOfSpheres, this.numberOfCubes);
-      }
-    })
-  }
-
-  /** @inheritdoc */
   public ngOnDestroy(): void {
     this.scene?.erase();
+  }
+
+  /** On start click. */
+  protected onStart() {
+    if (this.canvasRef != null) {
+      this.scene = new MainScene(this.canvasRef.nativeElement, this.numberOfSpheres, this.numberOfCubes);
+    }
   }
 }

@@ -1,1 +1,24 @@
-<canvas class="scene" #canvas></canvas>
+<main class="container">
+  <section class="options">
+    <h1>Options</h1>
+    <label for="numOfSpheres">Number of spheres: {{ numberOfSpheres }}</label>
+    <input
+      type="range"
+      id="numOfSpheres"
+      [(ngModel)]="numberOfSpheres"
+      min="1"
+      max="50"
+    />
+    <label for="numOfCubes">Number of cubes: {{ numberOfCubes }}</label>
+    <input
+      type="range"
+      id="numOfCubes"
+      [(ngModel)]="numberOfCubes"
+      min="1"
+      max="50"
+    />
+
+    <button type="button" (click)="onStart()">Start</button>
+  </section>
+  <canvas class="scene" #canvas></canvas>
+</main>
