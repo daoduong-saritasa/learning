@@ -93,8 +93,7 @@ export class MainScene {
       );
       const rotation = angle - (car.rotationQuaternion?.toEulerAngles().y ?? 0);
       car.rotate(Axis.Y, rotation, Space.WORLD);
-      const distance = Vector3.Distance(this.destination, car.position);
-      this.carAcceleration = distance / 100;
+      this.carAcceleration = Vector3.Distance(this.destination, car.position);
     });
   }
 
