@@ -33,44 +33,26 @@ export class MainScene {
   private spheres: Mesh[] = [];
   private cubes: Mesh[] = [];
   private car: Promise<AbstractMesh>;
-  public constructor(private readonly canvas: HTMLCanvasElement, private readonly numOfSpheres: number, private readonly numOfCubes: number) {
+
+  public constructor(
+    private readonly canvas: HTMLCanvasElement,
+    private readonly numOfSpheres: number,
+    private readonly numOfCubes: number
+  ) {
     MainCamera.create(this.scene);
     MainLight.create(this.scene);
-
-    // Enable physics
     const physicsPlugin = new CannonJSPlugin(true, 100, CANNON);
     this.scene.enablePhysics(new Vector3(0, -9.81, 0), physicsPlugin);
     this.createGround();
     this.car = this.createCar();
-    this.spheres = this.createSpheres(numOfSpheres);
-    this.cubes = this.createCubes(numOfCubes);
-    this.handleCollision(this.car, this.spheres);
-    this.handleCollision(this.car, this.cubes);
-    this.initCarPhysics(canvas);
+    this.spheres = this.createSpheres(this.numOfSpheres);
+    this.cubes = this.createCubes(this.numOfCubes);
+    this.handleCarRotationAndAcceleration();
+    this.handleCollisionWithCar(this.spheres);
+    this.handleCollisionWithCar(this.cubes);
 
     this.engine.runRenderLoop(async () => {
-      if (this.destination) {
-        const carBody = await this.car;
-        const direction = this.destination.subtract(carBody.position);
-        direction.y = 0;
-        const distance = Vector3.Distance(this.destination, carBody.position);
-        const maxSpeed = 10;
-        this.carAcceleration = Math.min(
-          this.carAcceleration,
-          maxSpeed / distance
-        );
-        this.carSpeed += this.carAcceleration;
-        this.carSpeed = Math.min(this.carSpeed, maxSpeed);
-        if (distance <= this.carSpeed) {
-          this.destination = null;
-          this.carSpeed = 0;
-          this.carAcceleration = 0;
-        } else {
-          carBody.moveWithCollisions(
-            direction.normalize().scale(this.carSpeed)
-          );
-        }
-      }
+      await this.handleCarMovement();
       this.scene.render();
     });
   }
@@ -81,9 +63,9 @@ export class MainScene {
     this.engine.dispose();
   }
 
-  private async initCarPhysics(canvas: HTMLCanvasElement): Promise<void> {
+  private async handleCarRotationAndAcceleration(): Promise<void> {
     const car = await this.car;
-    canvas.addEventListener('click', (event) => {
+    this.canvas.addEventListener('click', (event) => {
       const pickResult = this.scene.pick(event.offsetX, event.offsetY);
       this.destination = assertNonNullWithReturn(pickResult.pickedPoint);
 
@@ -97,15 +79,36 @@ export class MainScene {
     });
   }
 
-  private async handleCollision(
-    car: Promise<AbstractMesh>,
-    objects: Mesh[]
-  ): Promise<void> {
-    const carBody = await car;
-    carBody.physicsImpostor?.setScalingUpdated();
+  private async handleCarMovement() {
+    if (this.destination) {
+      const car = await this.car;
+      const direction = this.destination.subtract(car.position);
+      direction.y = 0;
+      const distance = Vector3.Distance(this.destination, car.position);
+      const maxSpeed = 10;
+      this.carAcceleration = Math.min(
+        this.carAcceleration,
+        maxSpeed / distance
+      );
+      this.carSpeed += this.carAcceleration;
+      this.carSpeed = Math.min(this.carSpeed, maxSpeed);
+      if (distance <= this.carSpeed) {
+        this.destination = null;
+        this.carSpeed = 0;
+        this.carAcceleration = 0;
+      } else {
+        car.moveWithCollisions(direction.normalize().scale(this.carSpeed));
+      }
+    }
+  }
+
+  private async handleCollisionWithCar(objects: Mesh[]): Promise<void> {
+    const car = await this.car;
+    const carImpostor = assertNonNullWithReturn(car.physicsImpostor);
+
     objects.forEach((object) => {
       object.physicsImpostor?.registerOnPhysicsCollide(
-        carBody.physicsImpostor!,
+        carImpostor,
         (main) => {
           if (main.object === object) {
             this.carSpeed = 0;
@@ -217,7 +220,7 @@ export class MainScene {
 
   private createCubes(amount?: number): Mesh[] {
     const result = [];
-    for (let i = 0; i < (amount?? NUMBER_OF_SPHERES); i++) {
+    for (let i = 0; i < (amount ?? NUMBER_OF_SPHERES); i++) {
       const randomPosition = new Vector3(
         -250 + Math.random() * 500,
         5,
